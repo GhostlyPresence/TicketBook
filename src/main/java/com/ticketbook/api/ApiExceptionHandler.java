@@ -1,5 +1,6 @@
 package com.ticketbook.api;
 
+import com.ticketbook.exception.BookingNotFoundException;
 import com.ticketbook.exception.FlightNotFoundException;
 import com.ticketbook.exception.OverbookingException;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,11 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(FlightNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleFlightNotFound(FlightNotFoundException ex) {
+        return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleBookingNotFound(BookingNotFoundException ex) {
         return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 

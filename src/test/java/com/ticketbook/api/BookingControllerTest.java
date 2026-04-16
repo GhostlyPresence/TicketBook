@@ -13,8 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -184,5 +183,65 @@ class BookingControllerTest {
         mockMvc.perform(get("/api/flights/tb100/availability"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.flightNumber").value("TB100"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/bookings/{id} should return 204 No Content on successful cancellation")
+    void testCancelBookingReturns204() throws Exception {
+        BookingRequest bookingRequest = new BookingRequest("TB100", "Test", 1);
+        var createResponse = mockMvc.perform(post("/api/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(bookingRequest)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String responseContent = createResponse.getResponse().getContentAsString();
+        long bookingId = objectMapper.readTree(responseContent).get("bookingId").asLong();
+
+        mockMvc.perform(delete("/api/bookings/" + bookingId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/bookings/{id} should return 404 for non-existent booking")
+    void testCancelNonExistentBookingReturns404() throws Exception {
+        mockMvc.perform(delete("/api/bookings/99999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/bookings/{id} should free up seats after cancellation")
+    void testCancelBookingFreesSeats() throws Exception {
+        BookingRequest bookingRequest = new BookingRequest("TB100", "Test", 2);
+        var createResponse = mockMvc.perform(post("/api/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(bookingRequest)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String responseContent = createResponse.getResponse().getContentAsString();
+        long bookingId = objectMapper.readTree(responseContent).get("bookingId").asLong();
+
+        // Check availability before cancellation
+        var beforeCancel = mockMvc.perform(get("/api/flights/TB100/availability"))
+                .andExpect(status().isOk())
+                .andReturn();
+        int bookedBefore = objectMapper.readTree(beforeCancel.getResponse().getContentAsString())
+                .get("bookedSeats").asInt();
+
+        // Cancel the booking
+        mockMvc.perform(delete("/api/bookings/" + bookingId))
+                .andExpect(status().isNoContent());
+
+        // Check availability after cancellation
+        var afterCancel = mockMvc.perform(get("/api/flights/TB100/availability"))
+                .andExpect(status().isOk())
+                .andReturn();
+        int bookedAfter = objectMapper.readTree(afterCancel.getResponse().getContentAsString())
+                .get("bookedSeats").asInt();
+
+        assertTrue(bookedAfter < bookedBefore, "Booked seats should decrease after cancellation");
     }
 }

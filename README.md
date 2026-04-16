@@ -13,15 +13,17 @@ A small Spring Boot REST API for in-memory flight ticket booking.
 
 - `POST /api/bookings` to create a booking
 - `GET /api/flights/{flightNumber}/availability` to check flight seat availability
+- `DELETE /api/bookings/{bookingId}` to cancel a booking and free up seats
 - No authentication/authorization
 - No search endpoint (client provides `flightNumber` directly)
 - Overbooking prevention with thread-safe reservation logic
 - Comprehensive unit and integration tests (includes concurrent booking test)
 - Proper HTTP status codes
   - `201 Created` for successful booking
+  - `204 No Content` for successful cancellation
   - `200 OK` for availability queries
   - `400 Bad Request` for invalid input
-  - `404 Not Found` when flight number does not exist
+  - `404 Not Found` when flight or booking number does not exist
   - `409 Conflict` when requested seats exceed available seats
 
 The app is preloaded with these flights:
@@ -112,9 +114,27 @@ This endpoint shows:
 - `bookedSeats`: Currently booked seats
 - `availableSeats`: Remaining available seats
 
+### 6) Cancel a booking
+
+```bash
+curl -i -X DELETE http://localhost:1234/api/bookings/1
+```
+
+Expected: `204 No Content`
+
+The booking is cancelled and seats are freed up for the flight.
+
+### 7) Cancel non-existent booking
+
+```bash
+curl -i -X DELETE http://localhost:1234/api/bookings/99999
+```
+
+Expected: `404 Not Found`
+
 ## If I had more time
 
-- Add automated tests (unit + integration, including concurrent booking scenarios)
+- Add automated tests (integration, including concurrent booking scenarios)
 - Externalize flight inventory to configuration file and support dynamic reload
 - Add idempotency key support to protect clients from duplicate retries
 - Expose health/readiness endpoints and structured logging for operations

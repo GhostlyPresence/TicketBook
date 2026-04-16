@@ -39,4 +39,10 @@ public class BookingController {
         FlightAvailabilityResponse availability = bookingService.getFlightAvailability(flightNumber);
         return ResponseEntity.ok(availability);
     }
+
+    @DeleteMapping("/bookings/{bookingId}")
+    public ResponseEntity<Void> cancelBooking(@PathVariable long bookingId) {
+        bookingService.cancelBooking(bookingId);
+        return ResponseEntity.noContent().build();
+    }
 }
