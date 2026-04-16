@@ -35,14 +35,14 @@ From the project root:
 mvn spring-boot:run
 ```
 
-Service starts on `http://localhost:8080`.
+Service starts on `http://localhost:1234`.
 
 ## Example requests
 
 ### 1) Successful booking
 
 ```bash
-curl -i -X POST http://localhost:8080/api/bookings \
+curl -i -X POST http://localhost:1234/api/bookings \
   -H "Content-Type: application/json" \
   -d '{
     "flightNumber": "TB100",
@@ -56,7 +56,7 @@ Expected: `201 Created`
 ### 2) Flight not found
 
 ```bash
-curl -i -X POST http://localhost:8080/api/bookings \
+curl -i -X POST http://localhost:1234/api/bookings \
   -H "Content-Type: application/json" \
   -d '{
     "flightNumber": "UNKNOWN123",
@@ -70,7 +70,7 @@ Expected: `404 Not Found`
 ### 3) Overbooking attempt
 
 ```bash
-curl -i -X POST http://localhost:8080/api/bookings \
+curl -i -X POST http://localhost:1234/api/bookings \
   -H "Content-Type: application/json" \
   -d '{
     "flightNumber": "TB300",
