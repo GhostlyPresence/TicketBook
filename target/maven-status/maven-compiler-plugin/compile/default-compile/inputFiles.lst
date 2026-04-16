@@ -1,8 +1,0 @@
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/TicketBookApplication.java
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/api/ApiExceptionHandler.java
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/api/BookingController.java
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/domain/BookingRequest.java
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/domain/BookingResponse.java
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/exception/FlightNotFoundException.java
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/exception/OverbookingException.java
-/Users/m0s0pk3/Documents/other-projects/TicketBook/src/main/java/com/ticketbook/service/BookingService.java
