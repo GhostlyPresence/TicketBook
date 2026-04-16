@@ -2,19 +2,17 @@ package com.ticketbook.api;
 
 import com.ticketbook.domain.BookingRequest;
 import com.ticketbook.domain.BookingResponse;
+import com.ticketbook.domain.FlightAvailabilityResponse;
 import com.ticketbook.service.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/api")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -23,7 +21,7 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @PostMapping
+    @PostMapping("/bookings")
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody BookingRequest request) {
         BookingResponse booking = bookingService.bookTicket(request);
 
@@ -34,5 +32,11 @@ public class BookingController {
                 .toUri();
 
         return ResponseEntity.created(location).body(booking);
+    }
+
+    @GetMapping("/flights/{flightNumber}/availability")
+    public ResponseEntity<FlightAvailabilityResponse> getFlightAvailability(@PathVariable String flightNumber) {
+        FlightAvailabilityResponse availability = bookingService.getFlightAvailability(flightNumber);
+        return ResponseEntity.ok(availability);
     }
 }

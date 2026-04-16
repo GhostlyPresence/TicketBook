@@ -12,11 +12,14 @@ A small Spring Boot REST API for in-memory flight ticket booking.
 ## What is implemented
 
 - `POST /api/bookings` to create a booking
+- `GET /api/flights/{flightNumber}/availability` to check flight seat availability
 - No authentication/authorization
 - No search endpoint (client provides `flightNumber` directly)
 - Overbooking prevention with thread-safe reservation logic
+- Comprehensive unit and integration tests (includes concurrent booking test)
 - Proper HTTP status codes
   - `201 Created` for successful booking
+  - `200 OK` for availability queries
   - `400 Bad Request` for invalid input
   - `404 Not Found` when flight number does not exist
   - `409 Conflict` when requested seats exceed available seats
@@ -80,6 +83,34 @@ curl -i -X POST http://localhost:1234/api/bookings \
 ```
 
 Expected: `409 Conflict`
+
+### 4) Check flight availability
+
+```bash
+curl -X GET http://localhost:1234/api/flights/TB100/availability
+```
+
+Example response:
+```json
+{
+  "flightNumber": "TB100",
+  "totalCapacity": 5,
+  "bookedSeats": 2,
+  "availableSeats": 3
+}
+```
+
+### 5) Check availability for flight with no space
+
+```bash
+curl -X GET http://localhost:1234/api/flights/TB300/availability
+```
+
+This endpoint shows:
+- `flightNumber`: The flight identifier
+- `totalCapacity`: Total seats on the flight
+- `bookedSeats`: Currently booked seats
+- `availableSeats`: Remaining available seats
 
 ## If I had more time
 

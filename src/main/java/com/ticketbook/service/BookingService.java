@@ -2,6 +2,7 @@ package com.ticketbook.service;
 
 import com.ticketbook.domain.BookingRequest;
 import com.ticketbook.domain.BookingResponse;
+import com.ticketbook.domain.FlightAvailabilityResponse;
 import com.ticketbook.exception.FlightNotFoundException;
 import com.ticketbook.exception.OverbookingException;
 import jakarta.annotation.PostConstruct;
@@ -58,6 +59,17 @@ public class BookingService {
         return booking;
     }
 
+    public FlightAvailabilityResponse getFlightAvailability(String flightNumber) {
+        String normalizedFlightNumber = flightNumber.trim().toUpperCase();
+        FlightState flight = flights.get(normalizedFlightNumber);
+
+        if (flight == null) {
+            throw new FlightNotFoundException("Flight " + normalizedFlightNumber + " was not found");
+        }
+
+        return flight.toAvailabilityResponse();
+    }
+
     private void logFlightAvailability(String header) {
         log.info(header);
         flights.values().stream()
@@ -91,6 +103,15 @@ public class BookingService {
 
         private synchronized int availableSeats() {
             return capacity - bookedSeats;
+        }
+
+        private synchronized FlightAvailabilityResponse toAvailabilityResponse() {
+            return new FlightAvailabilityResponse(
+                    flightNumber,
+                    capacity,
+                    bookedSeats,
+                    capacity - bookedSeats
+            );
         }
     }
 }

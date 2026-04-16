@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -136,5 +138,51 @@ class BookingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request2)))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("GET /api/flights/{flightNumber}/availability should return flight availability")
+    void testGetFlightAvailability() throws Exception {
+        mockMvc.perform(get("/api/flights/TB300/availability"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flightNumber").value("TB300"))
+                .andExpect(jsonPath("$.totalCapacity").value(2))
+                .andExpect(jsonPath("$.bookedSeats").isNumber())
+                .andExpect(jsonPath("$.availableSeats").isNumber());
+    }
+
+    @Test
+    @DisplayName("GET /api/flights/{flightNumber}/availability should reflect booked seats")
+    void testGetFlightAvailabilityAfterBooking() throws Exception {
+        // Book 1 seat on TB200
+        BookingRequest bookingRequest = new BookingRequest("TB200", "Test", 1);
+        mockMvc.perform(post("/api/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(bookingRequest)))
+                .andExpect(status().isCreated());
+
+        // Get availability and check it reflects the booking
+        mockMvc.perform(get("/api/flights/TB200/availability"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flightNumber").value("TB200"))
+                .andExpect(jsonPath("$.totalCapacity").value(3))
+                .andExpect(jsonPath("$.bookedSeats").isNumber())
+                .andExpect(jsonPath("$.availableSeats").isNumber());
+    }
+
+    @Test
+    @DisplayName("GET /api/flights/{flightNumber}/availability should return 404 for unknown flight")
+    void testGetFlightAvailabilityNotFound() throws Exception {
+        mockMvc.perform(get("/api/flights/UNKNOWN/availability"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    @DisplayName("GET /api/flights/{flightNumber}/availability should handle lowercase flight numbers")
+    void testGetFlightAvailabilityNormalization() throws Exception {
+        mockMvc.perform(get("/api/flights/tb100/availability"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flightNumber").value("TB100"));
     }
 }
