@@ -1,9 +1,11 @@
 package com.ticketbook.flight.registry;
 
-import com.ticketbook.config.FlightInventoryConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ByteArrayResource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,16 +17,24 @@ class FlightRegistryTest {
     @Test
     @DisplayName("Should hot-reload flight inventory while preserving booked seats")
     void shouldReloadInventorySafely() {
-        FlightInventoryConfig initialConfig = new FlightInventoryConfig();
-        initialConfig.setInventory(List.of(flight("TB100", 5), flight("TB200", 3)));
+        FlightInventoryLoader loader = new FlightInventoryLoader(
+            new ByteArrayResource("[]".getBytes(StandardCharsets.UTF_8)),
+            new ObjectMapper()
+        );
 
-        FlightRegistry registry = new FlightRegistry(initialConfig);
-        registry.initialize();
+        FlightRegistry registry = new FlightRegistry(loader);
+        registry.reload(List.of(
+            new FlightInventoryLoader.FlightInventoryEntry("TB100", 5),
+            new FlightInventoryLoader.FlightInventoryEntry("TB200", 3)
+        ));
 
         RegisteredFlight originalFlight = registry.findFlight("TB100");
         originalFlight.reserveSeats(2);
 
-        registry.reload(List.of(flight("TB100", 8), flight("TB300", 4)));
+        registry.reload(List.of(
+            new FlightInventoryLoader.FlightInventoryEntry("TB100", 8),
+            new FlightInventoryLoader.FlightInventoryEntry("TB300", 4)
+        ));
 
         RegisteredFlight reloadedFlight = registry.findFlight("TB100");
         RegisteredFlight newFlight = registry.findFlight("TB300");
@@ -35,12 +45,5 @@ class FlightRegistryTest {
         assertNotNull(newFlight);
         assertEquals(4, newFlight.getCapacity());
         assertNull(registry.findFlight("TB200"));
-    }
-
-    private static FlightInventoryConfig.FlightDefinition flight(String flightNumber, int capacity) {
-        FlightInventoryConfig.FlightDefinition definition = new FlightInventoryConfig.FlightDefinition();
-        definition.setFlightNumber(flightNumber);
-        definition.setCapacity(capacity);
-        return definition;
     }
 }

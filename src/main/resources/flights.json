@@ -1,0 +1,14 @@
+[
+  {
+    "flightNumber": "TB100",
+    "capacity": 5
+  },
+  {
+    "flightNumber": "TB200",
+    "capacity": 3
+  },
+  {
+    "flightNumber": "TB300",
+    "capacity": 2
+  }
+]

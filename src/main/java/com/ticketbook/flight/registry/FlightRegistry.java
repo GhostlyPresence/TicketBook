@@ -1,6 +1,5 @@
 package com.ticketbook.flight.registry;
 
-import com.ticketbook.config.FlightInventoryConfig;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -14,12 +13,12 @@ import java.util.concurrent.atomic.AtomicReference;
 @Component
 public class FlightRegistry {
 
-    private final FlightInventoryConfig flightInventoryConfig;
+    private final FlightInventoryLoader flightInventoryLoader;
     private final AtomicReference<Map<String, RegisteredFlight>> flightsRef =
             new AtomicReference<>(Collections.emptyMap());
 
-    public FlightRegistry(FlightInventoryConfig flightInventoryConfig) {
-        this.flightInventoryConfig = flightInventoryConfig;
+    public FlightRegistry(FlightInventoryLoader flightInventoryLoader) {
+        this.flightInventoryLoader = flightInventoryLoader;
     }
 
     @PostConstruct
@@ -36,15 +35,15 @@ public class FlightRegistry {
     }
 
     public synchronized void reloadFromConfig() {
-        reload(flightInventoryConfig.getInventory());
+        reload(flightInventoryLoader.loadInventory());
     }
 
-    public synchronized void reload(Collection<FlightInventoryConfig.FlightDefinition> definitions) {
+    public synchronized void reload(Collection<FlightInventoryLoader.FlightInventoryEntry> definitions) {
         Map<String, RegisteredFlight> currentFlights = flightsRef.get();
         Map<String, RegisteredFlight> reloadedFlights = new LinkedHashMap<>();
 
-        for (FlightInventoryConfig.FlightDefinition definition : definitions) {
-            String normalizedFlightNumber = normalize(definition.getFlightNumber());
+        for (FlightInventoryLoader.FlightInventoryEntry definition : definitions) {
+            String normalizedFlightNumber = normalize(definition.flightNumber());
             if (reloadedFlights.containsKey(normalizedFlightNumber)) {
                 throw new IllegalStateException("Duplicate flight number in configuration: " + normalizedFlightNumber);
             }
@@ -54,7 +53,7 @@ public class FlightRegistry {
 
             reloadedFlights.put(
                     normalizedFlightNumber,
-                    new RegisteredFlight(normalizedFlightNumber, definition.getCapacity(), bookedSeats)
+                    new RegisteredFlight(normalizedFlightNumber, definition.capacity(), bookedSeats)
             );
         }
 
