@@ -86,6 +86,13 @@ public class BookingService {
         logFlightAvailability("Flight availability after cancellation of booking " + bookingId + ":");
     }
 
+    public BookingResponse getBookingById(long bookingId) {
+        return bookings.stream()
+                .filter(b -> b.bookingId() == bookingId)
+                .findFirst()
+                .orElseThrow(() -> new BookingNotFoundException("Booking " + bookingId + " was not found"));
+    }
+
     private void logFlightAvailability(String header) {
         log.info(header);
         flights.values().stream()
