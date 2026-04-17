@@ -1,7 +1,7 @@
 package com.ticketbook.flight.capacity;
 
 import com.ticketbook.exception.OverbookingException;
-import com.ticketbook.flight.domain.FlightService;
+import com.ticketbook.flight.registry.RegisteredFlight;
 
 public interface FlightCapacityStrategy {
 
@@ -9,7 +9,7 @@ public interface FlightCapacityStrategy {
 
     String strategyName();
 
-    default void validateReservation(FlightService.Flight flight, int requestedSeats) {
+    default void validateReservation(RegisteredFlight flight, int requestedSeats) {
         int maxSeats = maxBookableSeats(flight.getCapacity());
         int remainingSeats = maxSeats - flight.getBookedSeats();
 

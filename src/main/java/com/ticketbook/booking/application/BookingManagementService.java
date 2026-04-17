@@ -1,5 +1,6 @@
 package com.ticketbook.booking.application;
 
+import com.ticketbook.config.BookingConfig;
 import com.ticketbook.domain.BookingAuditEntry;
 import com.ticketbook.domain.BookingRequest;
 import com.ticketbook.domain.BookingResponse;
@@ -29,18 +30,21 @@ public class BookingManagementService {
     private final SeatReservationService seatReservationService;
     private final BookingAuditLog auditLog;
     private final FlightAvailabilityLogger availabilityLogger;
+    private final BookingConfig bookingConfig;
 
     public BookingManagementService(
             BookingService bookingService,
             FlightService flightService,
             SeatReservationService seatReservationService,
             BookingAuditLog auditLog,
-            FlightAvailabilityLogger availabilityLogger) {
+            FlightAvailabilityLogger availabilityLogger,
+            BookingConfig bookingConfig) {
         this.bookingService = bookingService;
         this.flightService = flightService;
         this.seatReservationService = seatReservationService;
         this.auditLog = auditLog;
         this.availabilityLogger = availabilityLogger;
+        this.bookingConfig = bookingConfig;
     }
 
     public BookingResponse bookTicket(BookingRequest request) {
@@ -48,6 +52,12 @@ public class BookingManagementService {
         
         String flightNumber = request.flightNumber().trim().toUpperCase();
         int seatsToBook = request.seats() == null ? 1 : request.seats();
+
+        if (seatsToBook > bookingConfig.getMaxSeatsPerPassenger()) {
+            throw new com.ticketbook.exception.BookingPolicyViolationException(
+                "A passenger can book at most " + bookingConfig.getMaxSeatsPerPassenger() + " seat(s)"
+            );
+        }
         
         // Validate flight exists
         flightService.getFlightByNumber(flightNumber);
@@ -81,6 +91,8 @@ public class BookingManagementService {
         
         // Fetch booking details
         BookingResponse booking = bookingService.getBookingById(bookingId);
+
+        bookingService.registerCancellation(bookingId, bookingConfig.getMaxCancellationsPerBooking());
         
         // Release seats
         seatReservationService.releaseSeats(booking.flightNumber(), booking.seats());
@@ -105,6 +117,8 @@ public class BookingManagementService {
         
         // Fetch booking details
         BookingResponse booking = bookingService.getBookingById(bookingId);
+
+        bookingService.registerCancellation(bookingId, bookingConfig.getMaxCancellationsPerBooking());
         
         // Release seats
         seatReservationService.releaseSeats(booking.flightNumber(), booking.seats());

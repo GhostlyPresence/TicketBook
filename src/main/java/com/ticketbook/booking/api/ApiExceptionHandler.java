@@ -1,6 +1,7 @@
 package com.ticketbook.booking.api;
 
 import com.ticketbook.exception.BookingNotFoundException;
+import com.ticketbook.exception.BookingPolicyViolationException;
 import com.ticketbook.exception.FlightNotFoundException;
 import com.ticketbook.exception.OverbookingException;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,11 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(OverbookingException.class)
     public ResponseEntity<Map<String, Object>> handleOverbooking(OverbookingException ex) {
+        return errorResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(BookingPolicyViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleBookingPolicyViolation(BookingPolicyViolationException ex) {
         return errorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 

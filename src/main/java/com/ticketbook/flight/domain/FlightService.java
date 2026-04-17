@@ -2,10 +2,11 @@ package com.ticketbook.flight.domain;
 
 import com.ticketbook.domain.FlightAvailabilityResponse;
 import com.ticketbook.exception.FlightNotFoundException;
+import com.ticketbook.flight.registry.FlightRegistry;
+import com.ticketbook.flight.registry.RegisteredFlight;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collection;
 
 /**
  * Responsible for managing flights and their current state.
@@ -14,79 +15,28 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class FlightService {
 
-    private final Map<String, Flight> flights = new ConcurrentHashMap<>();
+    private final FlightRegistry flightRegistry;
 
-    public FlightService() {
-        flights.put("TB100", new Flight("TB100", 5));
-        flights.put("TB200", new Flight("TB200", 3));
-        flights.put("TB300", new Flight("TB300", 2));
+    public FlightService(FlightRegistry flightRegistry) {
+        this.flightRegistry = flightRegistry;
     }
 
-    public Flight getFlightByNumber(String flightNumber) {
-        String normalizedFlightNumber = flightNumber.trim().toUpperCase();
-        Flight flight = flights.get(normalizedFlightNumber);
+    public RegisteredFlight getFlightByNumber(String flightNumber) {
+        RegisteredFlight flight = flightRegistry.findFlight(flightNumber);
 
         if (flight == null) {
-            throw new FlightNotFoundException("Flight " + normalizedFlightNumber + " was not found");
+            throw new FlightNotFoundException("Flight " + flightNumber.trim().toUpperCase() + " was not found");
         }
 
         return flight;
     }
 
     public FlightAvailabilityResponse getFlightAvailability(String flightNumber) {
-        Flight flight = getFlightByNumber(flightNumber);
+        RegisteredFlight flight = getFlightByNumber(flightNumber);
         return flight.toAvailabilityResponse();
     }
 
-    public Map<String, Flight> getAllFlights() {
-        return flights;
-    }
-
-    public static final class Flight {
-        private final String flightNumber;
-        private final int capacity;
-        private int bookedSeats;
-
-        public Flight(String flightNumber, int capacity) {
-            this.flightNumber = flightNumber;
-            this.capacity = capacity;
-        }
-
-        public synchronized void reserveSeats(int requestedSeats) {
-            // Capacity validation is delegated to the configured FlightCapacityStrategy.
-            bookedSeats += requestedSeats;
-        }
-
-        public synchronized void releaseSeats(int seatsToRelease) {
-            bookedSeats -= seatsToRelease;
-            if (bookedSeats < 0) {
-                bookedSeats = 0;
-            }
-        }
-
-        public String getFlightNumber() {
-            return flightNumber;
-        }
-
-        public int getCapacity() {
-            return capacity;
-        }
-
-        public synchronized int getBookedSeats() {
-            return bookedSeats;
-        }
-
-        public synchronized int getAvailableSeats() {
-            return Math.max(0, capacity - bookedSeats);
-        }
-
-        public synchronized FlightAvailabilityResponse toAvailabilityResponse() {
-            return new FlightAvailabilityResponse(
-                    flightNumber,
-                    capacity,
-                    bookedSeats,
-                    Math.max(0, capacity - bookedSeats)
-            );
-        }
+    public Collection<RegisteredFlight> getAllFlights() {
+        return flightRegistry.getAllFlights();
     }
 }

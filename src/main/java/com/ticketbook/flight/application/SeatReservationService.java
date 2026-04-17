@@ -2,6 +2,7 @@ package com.ticketbook.flight.application;
 
 import com.ticketbook.flight.capacity.FlightCapacityStrategy;
 import com.ticketbook.flight.domain.FlightService;
+import com.ticketbook.flight.registry.RegisteredFlight;
 
 import org.springframework.stereotype.Service;
 
@@ -21,18 +22,18 @@ public class SeatReservationService {
     }
 
     public void reserveSeats(String flightNumber, int seatsToReserve) {
-        FlightService.Flight flight = flightService.getFlightByNumber(flightNumber);
+        RegisteredFlight flight = flightService.getFlightByNumber(flightNumber);
         capacityStrategy.validateReservation(flight, seatsToReserve);
         flight.reserveSeats(seatsToReserve);
     }
 
     public void releaseSeats(String flightNumber, int seatsToRelease) {
-        FlightService.Flight flight = flightService.getFlightByNumber(flightNumber);
+        RegisteredFlight flight = flightService.getFlightByNumber(flightNumber);
         flight.releaseSeats(seatsToRelease);
     }
 
     public int getAvailableSeats(String flightNumber) {
-        FlightService.Flight flight = flightService.getFlightByNumber(flightNumber);
+        RegisteredFlight flight = flightService.getFlightByNumber(flightNumber);
         return flight.getAvailableSeats();
     }
 }

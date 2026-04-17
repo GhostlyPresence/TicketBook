@@ -1,14 +1,19 @@
 package com.ticketbook.flight.capacity;
 
+import com.ticketbook.config.BookingConfig;
 import com.ticketbook.exception.OverbookingException;
-import com.ticketbook.flight.domain.FlightService;
+import com.ticketbook.flight.registry.RegisteredFlight;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DiscountedCapacityStrategy implements FlightCapacityStrategy {
 
     private static final double DISCOUNTED_INVENTORY_FACTOR = 0.80;
-    private static final int MAX_SEATS_PER_BOOKING = 2;
+    private final BookingConfig bookingConfig;
+
+    public DiscountedCapacityStrategy(BookingConfig bookingConfig) {
+        this.bookingConfig = bookingConfig;
+    }
 
     @Override
     public int maxBookableSeats(int baseCapacity) {
@@ -21,10 +26,10 @@ public class DiscountedCapacityStrategy implements FlightCapacityStrategy {
     }
 
     @Override
-    public void validateReservation(FlightService.Flight flight, int requestedSeats) {
-        if (requestedSeats > MAX_SEATS_PER_BOOKING) {
+    public void validateReservation(RegisteredFlight flight, int requestedSeats) {
+        if (requestedSeats > bookingConfig.getMaxSeatsPerPassenger()) {
             throw new OverbookingException(
-                    "Discounted bookings allow up to " + MAX_SEATS_PER_BOOKING + " seat(s) per booking"
+                    "Discounted bookings allow up to " + bookingConfig.getMaxSeatsPerPassenger() + " seat(s) per booking"
             );
         }
 

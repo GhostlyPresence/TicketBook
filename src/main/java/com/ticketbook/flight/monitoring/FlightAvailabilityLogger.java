@@ -1,13 +1,14 @@
 package com.ticketbook.flight.monitoring;
 
 import com.ticketbook.flight.domain.FlightService;
+import com.ticketbook.flight.registry.RegisteredFlight;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
-import java.util.Map;
+import java.util.Collection;
 
 /**
  * Responsible for logging flight availability information.
@@ -26,9 +27,9 @@ public class FlightAvailabilityLogger {
 
     public void logFlightAvailability(String header) {
         log.info(header);
-        Map<String, FlightService.Flight> flights = flightService.getAllFlights();
-        flights.values().stream()
-                .sorted(Comparator.comparing(FlightService.Flight::getFlightNumber))
+        Collection<RegisteredFlight> flights = flightService.getAllFlights();
+        flights.stream()
+            .sorted(Comparator.comparing(RegisteredFlight::getFlightNumber))
                 .forEach(flight -> log.info("{} -> available seats: {}", flight.getFlightNumber(), flight.getAvailableSeats()));
     }
 }

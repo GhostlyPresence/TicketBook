@@ -45,7 +45,7 @@ class BookingManagementServiceTest {
     @Test
     @DisplayName("Should throw OverbookingException when seats exceed capacity")
     void shouldPreventOverbooking() {
-        BookingRequest request = new BookingRequest("TB300", "Bob", 10);
+        BookingRequest request = new BookingRequest("TB300", "Bob", 3);
 
         assertThrows(OverbookingException.class, () -> bookingManagementService.bookTicket(request));
     }
