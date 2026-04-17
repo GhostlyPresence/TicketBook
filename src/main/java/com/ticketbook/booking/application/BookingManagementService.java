@@ -1,9 +1,14 @@
-package com.ticketbook.service;
+package com.ticketbook.booking.application;
 
 import com.ticketbook.domain.BookingAuditEntry;
 import com.ticketbook.domain.BookingRequest;
 import com.ticketbook.domain.BookingResponse;
 import com.ticketbook.domain.FlightAvailabilityResponse;
+import com.ticketbook.booking.audit.BookingAuditLog;
+import com.ticketbook.booking.domain.BookingService;
+import com.ticketbook.flight.application.SeatReservationService;
+import com.ticketbook.flight.domain.FlightService;
+import com.ticketbook.flight.monitoring.FlightAvailabilityLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

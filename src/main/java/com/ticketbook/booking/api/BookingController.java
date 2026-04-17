@@ -1,9 +1,9 @@
-package com.ticketbook.api;
+package com.ticketbook.booking.api;
 
 import com.ticketbook.domain.BookingRequest;
 import com.ticketbook.domain.BookingResponse;
 import com.ticketbook.domain.FlightAvailabilityResponse;
-import com.ticketbook.service.BookingManagementService;
+import com.ticketbook.booking.application.BookingManagementService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

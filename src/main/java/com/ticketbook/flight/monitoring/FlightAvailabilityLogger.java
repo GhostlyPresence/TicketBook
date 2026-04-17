@@ -1,4 +1,6 @@
-package com.ticketbook.service;
+package com.ticketbook.flight.monitoring;
+
+import com.ticketbook.flight.domain.FlightService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

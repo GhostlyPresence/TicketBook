@@ -1,4 +1,4 @@
-package com.ticketbook.service;
+package com.ticketbook.booking.domain;
 
 import com.ticketbook.domain.BookingRequest;
 import com.ticketbook.domain.BookingResponse;

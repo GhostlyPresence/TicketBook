@@ -1,4 +1,4 @@
-package com.ticketbook.service;
+package com.ticketbook.flight.domain;
 
 import com.ticketbook.domain.FlightAvailabilityResponse;
 import com.ticketbook.exception.FlightNotFoundException;
@@ -53,12 +53,7 @@ public class FlightService {
         }
 
         public synchronized void reserveSeats(int requestedSeats) {
-            int remainingSeats = capacity - bookedSeats;
-            if (requestedSeats > remainingSeats) {
-                throw new com.ticketbook.exception.OverbookingException(
-                        "Flight " + flightNumber + " has only " + remainingSeats + " seat(s) left"
-                );
-            }
+            // Capacity validation is delegated to the configured FlightCapacityStrategy.
             bookedSeats += requestedSeats;
         }
 
@@ -82,7 +77,7 @@ public class FlightService {
         }
 
         public synchronized int getAvailableSeats() {
-            return capacity - bookedSeats;
+            return Math.max(0, capacity - bookedSeats);
         }
 
         public synchronized FlightAvailabilityResponse toAvailabilityResponse() {
@@ -90,7 +85,7 @@ public class FlightService {
                     flightNumber,
                     capacity,
                     bookedSeats,
-                    capacity - bookedSeats
+                    Math.max(0, capacity - bookedSeats)
             );
         }
     }

@@ -1,4 +1,4 @@
-package com.ticketbook.api;
+package com.ticketbook.booking.api;
 
 import com.ticketbook.exception.BookingNotFoundException;
 import com.ticketbook.exception.FlightNotFoundException;

@@ -1,4 +1,4 @@
-package com.ticketbook.service;
+package com.ticketbook.flight.monitoring;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

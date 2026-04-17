@@ -1,4 +1,4 @@
-package com.ticketbook.service;
+package com.ticketbook.booking.audit;
 
 import com.ticketbook.domain.BookingAuditEntry;
 import org.springframework.stereotype.Component;

@@ -2,7 +2,6 @@ package com.ticketbook.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticketbook.domain.BookingRequest;
-import com.ticketbook.service.BookingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +25,6 @@ class BookingControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private BookingService bookingService;
 
     @Test
     @DisplayName("POST /api/bookings should return 201 Created on successful booking")
